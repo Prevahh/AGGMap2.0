@@ -137,6 +137,89 @@
       ],
       "Other": []
     };
+
+    // initialize material type selector
+    const materialSelect = $('#materialTypeFilter');
+    $(document).ready(function() {
+      Object.entries(materialTypeCategories).forEach(([category, types]) => {
+        const group = $('<optgroup>').attr('label', category);
+        types.forEach(type => {
+          group.append($('<option>').val(type).text(type));
+        });
+        materialSelect.append(group);
+      });
+      materialSelect.select2({ placeholder: 'Select material types' });
+    });
+
+    // create map
+    const map = L.map('map').setView([39.8283, -98.5795], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = [];
+
+    // handle CSV upload
+    document.getElementById('fileInput').addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: results => loadMarkers(results.data)
+      });
+    });
+
+    function loadMarkers(data) {
+      markers.forEach(m => map.removeLayer(m));
+      markers.length = 0;
+
+      data.forEach(row => {
+        const lat = parseFloat(row.Latitude || row.lat || row.latitude);
+        const lng = parseFloat(row.Longitude || row.lon || row.lng || row.longitude);
+        if (isNaN(lat) || isNaN(lng)) return;
+        const marker = L.marker([lat, lng]);
+        marker.materialType = row['Material Type'] || row.MaterialType || row.material_type || 'Other';
+        const facility = row.Facility || row.Name || '';
+        const contact = row.Contact || row.ContactName || '';
+        const phone = row.Phone || '';
+        let popup = `<h3>${facility}</h3>`;
+        if (contact) popup += `<p><strong>Contact:</strong> ${contact}</p>`;
+        if (phone) popup += `<p><strong>Phone:</strong> ${phone}</p>`;
+        marker.bindPopup(popup);
+        marker.addTo(map);
+        markers.push(marker);
+      });
+      filterMarkers();
+    }
+
+    function filterMarkers() {
+      const selected = materialSelect.val() || [];
+      markers.forEach(marker => {
+        if (selected.length === 0 || selected.includes(marker.materialType)) {
+          marker.addTo(map);
+        } else {
+          map.removeLayer(marker);
+        }
+      });
+    }
+
+    materialSelect.on('change', filterMarkers);
+
+    map.on('click', e => {
+      const radiusMeters = 10 * 1609.34;
+      const clickLatLng = e.latlng;
+      const circle = L.circle(clickLatLng, { radius: radiusMeters, color: '#2563eb' }).addTo(map);
+      const within = markers.filter(m => clickLatLng.distanceTo(m.getLatLng()) <= radiusMeters);
+      markers.forEach(m => map.removeLayer(m));
+      within.forEach(m => m.addTo(map));
+      setTimeout(() => map.removeLayer(circle), 2000);
+    });
+
+    document.getElementById('resetView').addEventListener('click', () => {
+      map.setView([39.8283, -98.5795], 4);
+      filterMarkers();
+    });
   </script>
 </body>
 </html>

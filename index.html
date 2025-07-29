@@ -160,10 +160,17 @@ function addMarkers(rows) {
     if (isNaN(lat) || isNaN(lng)) return;
     const marker = L.marker([lat, lng]);
     marker.material = row['Material Type'];
+    const contactInfo =
+      `<div class="contact-info hidden mt-2">` +
+        `<p><strong>Contact:</strong> ${row['Contact Person'] || ''}</p>` +
+        `<p><strong>Email:</strong> ${row['Contact Email'] || ''}</p>` +
+        `<p><strong>Phone:</strong> ${row['Telephone Number'] || ''}</p>` +
+      `</div>`;
     const popup = `<h3>${row.Company || ''}</h3>` +
       `<p><strong>Facility:</strong> ${row['Facility Description'] || ''}</p>` +
       `<p><strong>Material:</strong> ${row['Material Type'] || ''}</p>` +
-      `<p><strong>Contact:</strong> ${row['Contact Person'] || ''}</p>`;
+      `<button class="contact-btn bg-blue-500 text-white px-2 py-1 rounded mt-2">Contact Information</button>` +
+      contactInfo;
     marker.bindPopup(popup);
     markers.push(marker);
   });
@@ -210,6 +217,13 @@ $(document).ready(function () {
     searchRadius = slider.value * metersPerMile;
     if (radiusCircle) radiusCircle.setRadius(searchRadius);
     updateMarkers();
+  });
+});
+
+map.on('popupopen', e => {
+  const $popup = $(e.popup.getElement());
+  $popup.find('.contact-btn').on('click', () => {
+    $popup.find('.contact-info').toggleClass('hidden');
   });
 });
 

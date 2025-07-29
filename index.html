@@ -79,7 +79,11 @@
       <select id="materialTypeFilter" multiple class="mt-1 block w-full"></select>
     </div>
     <div class="mb-4">
-      <p class="text-sm text-gray-600">Click on the map to show markers within a 10-mile radius. Click a marker to see facility and contact details. <button id="resetView" class="text-blue-500 underline">Reset</button></p>
+      <label class="block text-sm font-medium text-gray-700">Search Radius: <span id="radiusValue">10</span> miles</label>
+      <input type="range" id="radiusSlider" min="1" max="50" value="10" class="w-full">
+    </div>
+    <div class="mb-4">
+      <p class="text-sm text-gray-600">Click on the map to choose a location. Markers within the selected radius will appear. <button id="resetView" class="text-blue-500 underline">Reset</button></p>
     </div>
     <div id="map" class="h-96 w-full mt-4"></div>
   </div>
@@ -147,6 +151,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let markers = [];
 let radiusCircle;
+const metersPerMile = 1609.34;
+let searchRadius = 10 * metersPerMile;
+let selectedLatLng = null;
 
 function addMarkers(rows) {
   markers.forEach(m => map.removeLayer(m));
@@ -162,17 +169,20 @@ function addMarkers(rows) {
       `<p><strong>Material:</strong> ${row['Material Type'] || ''}</p>` +
       `<p><strong>Contact:</strong> ${row['Contact Person'] || ''}</p>`;
     marker.bindPopup(popup);
-    marker.addTo(map);
     markers.push(marker);
   });
+  updateMarkers();
 }
 
-function filterMarkers(types) {
+function updateMarkers() {
+  markers.forEach(m => map.removeLayer(m));
+  if (!selectedLatLng) return;
+  const types = $('#materialTypeFilter').val() || [];
   markers.forEach(m => {
-    if (!types.length || types.includes(m.material)) {
+    const inType = !types.length || types.includes(m.material);
+    const inRadius = selectedLatLng.distanceTo(m.getLatLng()) <= searchRadius;
+    if (inType && inRadius) {
       m.addTo(map);
-    } else {
-      map.removeLayer(m);
     }
   });
 }
@@ -195,25 +205,29 @@ $(document).ready(function () {
     $select.append($group);
   }
   $select.select2();
-  $select.on('change', () => filterMarkers($select.val() || []));
+  $select.on('change', () => updateMarkers());
+  const slider = document.getElementById('radiusSlider');
+  const radiusText = document.getElementById('radiusValue');
+  slider.addEventListener('input', () => {
+    radiusText.textContent = slider.value;
+    searchRadius = slider.value * metersPerMile;
+    if (radiusCircle) radiusCircle.setRadius(searchRadius);
+    updateMarkers();
+  });
 });
 
 map.on('click', e => {
+  selectedLatLng = e.latlng;
   if (radiusCircle) map.removeLayer(radiusCircle);
-  radiusCircle = L.circle(e.latlng, { radius: 16093 });
+  radiusCircle = L.circle(e.latlng, { radius: searchRadius });
   radiusCircle.addTo(map);
-  markers.forEach(m => {
-    if (e.latlng.distanceTo(m.getLatLng()) <= 16093) {
-      m.addTo(map);
-    } else {
-      map.removeLayer(m);
-    }
-  });
+  updateMarkers();
 });
 
 document.getElementById('resetView').addEventListener('click', () => {
   if (radiusCircle) map.removeLayer(radiusCircle);
-  filterMarkers($('#materialTypeFilter').val() || []);
+  selectedLatLng = null;
+  updateMarkers();
 });
 </script>
 </body>

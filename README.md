@@ -5,7 +5,8 @@ This repository contains data and utilities for processing aggregate facility in
 ## Files
 
 - `AGGDATA.csv` – Raw facility data exported from LIMS.
-- `index.html` – Prototype web map interface.
+- `AGGDATA_cleaned.csv` – Deduplicated records used by the map interface.
+- `index.html` – Prototype web map interface that loads `AGGDATA_cleaned.csv` by default.
 - `merge_duplicates.py` – Utility script that merges duplicate facility records.
 
 ## Merging Duplicate Rows

@@ -5,7 +5,7 @@ This repository contains data and utilities for processing aggregate facility in
 ## Files
 
 - `AGGDATA.csv` – Raw facility data exported from LIMS.
-- `Aggmaps2.html` – Prototype web map interface.
+- `index.html` – Prototype web map interface.
 - `merge_duplicates.py` – Utility script that merges duplicate facility records.
 
 ## Merging Duplicate Rows

@@ -11,7 +11,7 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
     html, body { height: 100%; margin: 0; }
-    #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+    #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
     /* Custom styles for Leaflet popup */
     .leaflet-popup-content-wrapper {
       border-radius: 8px;
@@ -45,7 +45,7 @@
   </style>
 </head>
   <body class="bg-gray-100 h-screen relative">
-    <div id="controls" class="absolute top-0 left-0 m-4 p-4 bg-white bg-opacity-90 rounded shadow-md max-w-sm z-10">
+    <div id="controls" class="absolute top-0 left-0 m-4 p-4 bg-white bg-opacity-90 rounded shadow-md max-w-sm" style="z-index:1000;">
       <h1 class="text-2xl font-bold mb-4">Construction Coordinate Map with Material Type Filter</h1>
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700">Filter by Material Type</label>

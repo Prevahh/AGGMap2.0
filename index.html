@@ -83,7 +83,10 @@
           <tr>
             <th class="text-left font-semibold pr-2">Company</th>
             <th class="text-left font-semibold pr-2">Facility</th>
-            <th class="text-left font-semibold">Material</th>
+            <th class="text-left font-semibold pr-2">Material</th>
+            <th class="text-left font-semibold pr-2">Contact</th>
+            <th class="text-left font-semibold pr-2">Email</th>
+            <th class="text-left font-semibold">Phone</th>
           </tr>
         </thead>
         <tbody id="shortlistBody"></tbody>
@@ -175,7 +178,10 @@ function updateShortlist() {
     const $tr = $('<tr>');
     $tr.append($('<td>').addClass('pr-2').text(r.Company || ''));
     $tr.append($('<td>').addClass('pr-2').text(r['Facility Description'] || ''));
-    $tr.append($('<td>').text(r['Material Type'] || ''));
+    $tr.append($('<td>').addClass('pr-2').text(r['Material Type'] || ''));
+    $tr.append($('<td>').addClass('pr-2').text(r['Contact Person'] || ''));
+    $tr.append($('<td>').addClass('pr-2').text(r['Contact Email'] || ''));
+    $tr.append($('<td>').text(r['Telephone Number'] || ''));
     $body.append($tr);
   });
 }

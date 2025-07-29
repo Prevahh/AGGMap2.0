@@ -177,6 +177,17 @@ function filterMarkers(types) {
   });
 }
 
+// Load default dataset
+fetch('AGGDATA.csv')
+  .then(r => r.text())
+  .then(text => {
+    Papa.parse(text, {
+      header: true,
+      skipEmptyLines: true,
+      complete: res => addMarkers(res.data)
+    });
+  });
+
 document.getElementById('fileInput').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;

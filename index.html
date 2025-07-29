@@ -76,6 +76,19 @@
         </table>
       </div>
     </div>
+    <div id="shortlist" class="absolute top-0 right-0 m-4 p-4 bg-white bg-opacity-90 rounded shadow-md max-w-sm" style="z-index:1000;">
+      <h2 class="text-xl font-bold mb-2">Shortlist</h2>
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr>
+            <th class="text-left font-semibold pr-2">Company</th>
+            <th class="text-left font-semibold pr-2">Facility</th>
+            <th class="text-left font-semibold">Material</th>
+          </tr>
+        </thead>
+        <tbody id="shortlistBody"></tbody>
+      </table>
+    </div>
     <div id="map"></div>
 
   <script>
@@ -144,6 +157,28 @@ let radiusCircle;
 const metersPerMile = 1609.34;
 let searchRadius = 10 * metersPerMile;
 let selectedLatLng = null;
+const shortlist = [];
+const shortlistKeys = new Set();
+
+function addToShortlist(row) {
+  const key = `${row.Company}|${row['Facility Description']}|${row.Latitude}|${row.Longitude}`;
+  if (shortlistKeys.has(key)) return;
+  shortlistKeys.add(key);
+  shortlist.push(row);
+  updateShortlist();
+}
+
+function updateShortlist() {
+  const $body = $('#shortlistBody');
+  $body.empty();
+  shortlist.forEach(r => {
+    const $tr = $('<tr>');
+    $tr.append($('<td>').addClass('pr-2').text(r.Company || ''));
+    $tr.append($('<td>').addClass('pr-2').text(r['Facility Description'] || ''));
+    $tr.append($('<td>').text(r['Material Type'] || ''));
+    $body.append($tr);
+  });
+}
 
 function addMarkers(rows) {
   markers.forEach(m => map.removeLayer(m));
@@ -154,6 +189,7 @@ function addMarkers(rows) {
     if (isNaN(lat) || isNaN(lng)) return;
     const marker = L.marker([lat, lng]);
     marker.material = row['Material Type'];
+    marker.data = row;
     const contactInfo =
       `<div class="contact-info hidden mt-2">` +
         `<p><strong>Contact:</strong> ${row['Contact Person'] || ''}</p>` +
@@ -166,6 +202,7 @@ function addMarkers(rows) {
       `<p><strong>Products:</strong> ${row['Products.Description'] || ''}</p>` +
       `<button class="add-shortlist bg-green-500 text-white px-2 py-1 rounded mt-2 mr-2">Add to Shortlist</button>` +
       `<button class="contact-btn bg-blue-500 text-white px-2 py-1 rounded mt-2">Contact Information</button>` +
+      `<button class="shortlist-btn bg-green-500 text-white px-2 py-1 rounded mt-2 ml-2">Add to Shortlist</button>` +
       contactInfo;
     marker.bindPopup(popup);
     marker.rowData = row;
@@ -239,9 +276,6 @@ map.on('popupopen', e => {
   const $popup = $(e.popup.getElement());
   $popup.find('.contact-btn').on('click', () => {
     $popup.find('.contact-info').toggleClass('hidden');
-  });
-  $popup.find('.add-shortlist').on('click', () => {
-    addToShortlist(e.popup._source.rowData);
   });
 });
 

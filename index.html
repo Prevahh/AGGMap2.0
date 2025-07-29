@@ -138,5 +138,83 @@
       "Other": []
     };
   </script>
+<script>
+let map = L.map('map').setView([28, -82], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+let markers = [];
+let radiusCircle;
+
+function addMarkers(rows) {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+  rows.forEach(row => {
+    const lat = parseFloat(row.Latitude);
+    const lng = parseFloat(row.Longitude);
+    if (isNaN(lat) || isNaN(lng)) return;
+    const marker = L.marker([lat, lng]);
+    marker.material = row['Material Type'];
+    const popup = `<h3>${row.Company || ''}</h3>` +
+      `<p><strong>Facility:</strong> ${row['Facility Description'] || ''}</p>` +
+      `<p><strong>Material:</strong> ${row['Material Type'] || ''}</p>` +
+      `<p><strong>Contact:</strong> ${row['Contact Person'] || ''}</p>`;
+    marker.bindPopup(popup);
+    marker.addTo(map);
+    markers.push(marker);
+  });
+}
+
+function filterMarkers(types) {
+  markers.forEach(m => {
+    if (!types.length || types.includes(m.material)) {
+      m.addTo(map);
+    } else {
+      map.removeLayer(m);
+    }
+  });
+}
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: res => addMarkers(res.data)
+  });
+});
+
+$(document).ready(function () {
+  const $select = $('#materialTypeFilter');
+  for (const [group, opts] of Object.entries(materialTypeCategories)) {
+    const $group = $('<optgroup>').attr('label', group);
+    opts.forEach(v => $group.append($('<option>').val(v).text(v)));
+    $select.append($group);
+  }
+  $select.select2();
+  $select.on('change', () => filterMarkers($select.val() || []));
+});
+
+map.on('click', e => {
+  if (radiusCircle) map.removeLayer(radiusCircle);
+  radiusCircle = L.circle(e.latlng, { radius: 16093 });
+  radiusCircle.addTo(map);
+  markers.forEach(m => {
+    if (e.latlng.distanceTo(m.getLatLng()) <= 16093) {
+      m.addTo(map);
+    } else {
+      map.removeLayer(m);
+    }
+  });
+});
+
+document.getElementById('resetView').addEventListener('click', () => {
+  if (radiusCircle) map.removeLayer(radiusCircle);
+  filterMarkers($('#materialTypeFilter').val() || []);
+});
+</script>
 </body>
 </html>

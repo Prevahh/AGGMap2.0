@@ -163,6 +163,20 @@ let selectedLatLng = null;
 const shortlist = [];
 const shortlistKeys = new Set();
 
+function normalizeRow(row) {
+  return {
+    Company: row.Company || row.COMPNAME || '',
+    'Facility Description': row['Facility Description'] || row.NAME || row.MINE_PLANT || '',
+    'Material Type': row['Material Type'] || row.NAICSDESCR || row.MINE_TYPE || '',
+    'Contact Person': row['Contact Person'] || '',
+    'Contact Email': row['Contact Email'] || '',
+    'Telephone Number': row['Telephone Number'] || row.PHONE || '',
+    Latitude: row.Latitude || row.Y,
+    Longitude: row.Longitude || row.X,
+    'Products.Description': row['Products.Description'] || ''
+  };
+}
+
 function addToShortlist(row) {
   const key = `${row.Company}|${row['Facility Description']}|${row.Latitude}|${row.Longitude}`;
   if (shortlistKeys.has(key)) return;
@@ -243,15 +257,14 @@ function addToShortlist(row) {
 }
 
 // Load dataset shipped with the application
-fetch('DATA/AGGDATA_cleaned.csv')
-  .then(r => r.text())
-  .then(text => {
-    Papa.parse(text, {
-      header: true,
-      skipEmptyLines: true,
-      complete: res => addMarkers(res.data)
-    });
-  });
+Promise.all([
+  fetch('DATA/AGGDATA_cleaned.csv').then(r => r.text()),
+  fetch('DATA/Mines_and_Mineral_Resources.csv').then(r => r.text())
+]).then(([aggText, minesText]) => {
+  const aggRows = Papa.parse(aggText, { header: true, skipEmptyLines: true }).data.map(normalizeRow);
+  const mineRows = Papa.parse(minesText, { header: true, skipEmptyLines: true }).data.map(normalizeRow);
+  addMarkers(aggRows.concat(mineRows));
+});
 
 $(document).ready(function () {
   const $filter = $('#materialTypeFilter');

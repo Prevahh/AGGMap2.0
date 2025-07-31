@@ -4,9 +4,15 @@ This repository contains data and utilities for processing aggregate facility in
 
 ## Files
 
-- `AGGDATA.csv` – Raw facility data exported from LIMS.
-- `AGGDATA_cleaned.csv` – Deduplicated records used by the map interface.
-- `index.html` – Prototype web map interface that loads `AGGDATA_cleaned.csv` by default.
+CSV data files are stored in the `DATA` directory:
+
+- `DATA/AGGDATA.csv` – Raw facility data exported from LIMS.
+- `DATA/AGGDATA_cleaned.csv` – Deduplicated records used by the map interface.
+- `DATA/Approved Products.csv` – Approved products list.
+- `DATA/All ProducersNot.csv` – Producer information.
+
+Other repository files:
+- `index.html` – Prototype web map interface that loads `DATA/AGGDATA_cleaned.csv` by default.
 - `merge_duplicates.py` – Utility script that merges duplicate facility records.
 
 ## Merging Duplicate Rows

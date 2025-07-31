@@ -1,7 +1,7 @@
 import pandas as pd
 
-INPUT_FILE = 'AGGDATA.csv'
-OUTPUT_FILE = 'AGGDATA_cleaned.csv'
+INPUT_FILE = 'DATA/AGGDATA.csv'
+OUTPUT_FILE = 'DATA/AGGDATA_cleaned.csv'
 
 # Load CSV with latin1 encoding for compatibility
 raw = pd.read_csv(INPUT_FILE, encoding='latin1')

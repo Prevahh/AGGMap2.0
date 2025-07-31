@@ -13,4 +13,5 @@ CSV data files are stored in the `DATA` directory:
 
 Other repository files:
 - `index.html` – Prototype web map interface that loads `DATA/AGGDATA_cleaned.csv` by default.
+- `Icons/` – Contains image assets used by the map such as the aggregate supplier pin.
 

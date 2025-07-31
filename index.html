@@ -140,6 +140,13 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+const aggIcon = L.icon({
+  iconUrl: 'Icons/Agg Icon.png',
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40]
+});
+
 let markers = [];
 let radiusCircle;
 const metersPerMile = 1609.34;
@@ -178,7 +185,9 @@ function addMarkers(rows) {
     const lat = parseFloat(row.Latitude);
     const lng = parseFloat(row.Longitude);
     if (isNaN(lat) || isNaN(lng)) return;
-    const marker = L.marker([lat, lng]);
+    const options = {};
+    if (row['Material Type'] === 'Aggregate') options.icon = aggIcon;
+    const marker = L.marker([lat, lng], options);
     marker.material = row['Material Type'];
     marker.data = row;
     const contactInfo =

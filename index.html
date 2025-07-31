@@ -7,6 +7,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
@@ -59,10 +61,10 @@
         <p class="text-sm text-gray-600">Click on the map to choose a location. Markers within the selected radius will appear. <button id="resetView" class="text-blue-500 underline">Reset</button></p>
       </div>
     </div>
-    <div id="shortlist" class="absolute top-0 right-0 m-4 p-4 bg-white bg-opacity-90 rounded shadow-md max-w-sm" style="z-index:1000;">
-      <h2 class="text-xl font-bold mb-2">Shortlist</h2>
-      <table class="min-w-full text-sm">
-        <thead>
+    <div id="shortlist" class="absolute top-0 right-0 m-4 p-4 bg-white bg-opacity-90 rounded shadow-md max-w-sm overflow-auto" style="z-index:1000; max-height:50vh;">
+      <h2 id="shortlistHeader" class="text-xl font-bold mb-2 cursor-move">Shortlist</h2>
+      <table class="min-w-full text-sm divide-y divide-gray-200">
+        <thead class="bg-gray-100 border-b">
           <tr>
             <th class="text-left font-semibold pr-2">Company</th>
             <th class="text-left font-semibold pr-2">Facility</th>
@@ -159,12 +161,12 @@ function updateShortlist() {
   $body.empty();
   shortlist.forEach(r => {
     const $tr = $('<tr>');
-    $tr.append($('<td>').addClass('pr-2').text(r.Company || ''));
-    $tr.append($('<td>').addClass('pr-2').text(r['Facility Description'] || ''));
-    $tr.append($('<td>').addClass('pr-2').text(r['Material Type'] || ''));
-    $tr.append($('<td>').addClass('pr-2').text(r['Contact Person'] || ''));
-    $tr.append($('<td>').addClass('pr-2').text(r['Contact Email'] || ''));
-    $tr.append($('<td>').text(r['Telephone Number'] || ''));
+    $tr.append($('<td>').addClass('px-2 py-1').text(r.Company || ''));
+    $tr.append($('<td>').addClass('px-2 py-1').text(r['Facility Description'] || ''));
+    $tr.append($('<td>').addClass('px-2 py-1').text(r['Material Type'] || ''));
+    $tr.append($('<td>').addClass('px-2 py-1').text(r['Contact Person'] || ''));
+    $tr.append($('<td>').addClass('px-2 py-1').text(r['Contact Email'] || ''));
+    $tr.append($('<td>').addClass('px-2 py-1').text(r['Telephone Number'] || ''));
     $body.append($tr);
   });
 }
@@ -246,6 +248,7 @@ $(document).ready(function () {
     if (radiusCircle) radiusCircle.setRadius(searchRadius);
     updateMarkers();
   });
+  $('#shortlist').draggable({ handle: '#shortlistHeader' }).resizable();
 });
 
 map.on('popupopen', e => {

@@ -53,27 +53,10 @@
       </div>
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700">Search Radius: <span id="radiusValue">10</span> miles</label>
-        <input type="range" id="radiusSlider" min="1" max="50" value="10" class="w-full">
+        <input type="range" id="radiusSlider" min="1" max="100" value="10" class="w-full">
       </div>
       <div class="mb-4">
         <p class="text-sm text-gray-600">Click on the map to choose a location. Markers within the selected radius will appear. <button id="resetView" class="text-blue-500 underline">Reset</button></p>
-      </div>
-      <div class="mt-4">
-        <h2 class="text-lg font-semibold mb-2">Shortlist</h2>
-        <table id="shortlist" class="min-w-full text-sm border">
-          <thead class="bg-gray-200">
-            <tr>
-              <th class="border px-2 py-1">Company</th>
-              <th class="border px-2 py-1">Facility</th>
-              <th class="border px-2 py-1">Material Type</th>
-              <th class="border px-2 py-1">Contact</th>
-              <th class="border px-2 py-1">Email</th>
-              <th class="border px-2 py-1">Phone</th>
-              <th class="border px-2 py-1">Products</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
       </div>
     </div>
     <div id="shortlist" class="absolute top-0 right-0 m-4 p-4 bg-white bg-opacity-90 rounded shadow-md max-w-sm" style="z-index:1000;">
@@ -208,7 +191,6 @@ function addMarkers(rows) {
       `<p><strong>Products:</strong> ${row['Products.Description'] || ''}</p>` +
       `<button class="add-shortlist bg-green-500 text-white px-2 py-1 rounded mt-2 mr-2">Add to Shortlist</button>` +
       `<button class="contact-btn bg-blue-500 text-white px-2 py-1 rounded mt-2">Contact Information</button>` +
-      `<button class="shortlist-btn bg-green-500 text-white px-2 py-1 rounded mt-2 ml-2">Add to Shortlist</button>` +
       contactInfo;
     marker.bindPopup(popup);
     marker.rowData = row;
@@ -228,18 +210,6 @@ function updateMarkers() {
       m.addTo(map);
     }
   });
-}
-
-function addToShortlist(row) {
-  const $tr = $('<tr>');
-  $tr.append($('<td>').addClass('border px-2 py-1').text(row.Company || ''));
-  $tr.append($('<td>').addClass('border px-2 py-1').text(row['Facility Description'] || ''));
-  $tr.append($('<td>').addClass('border px-2 py-1').text(row['Material Type'] || ''));
-  $tr.append($('<td>').addClass('border px-2 py-1').text(row['Contact Person'] || ''));
-  $tr.append($('<td>').addClass('border px-2 py-1').text(row['Contact Email'] || ''));
-  $tr.append($('<td>').addClass('border px-2 py-1').text(row['Telephone Number'] || ''));
-  $tr.append($('<td>').addClass('border px-2 py-1').text(row['Products.Description'] || ''));
-  $('#shortlist tbody').append($tr);
 }
 
 // Load dataset shipped with the application
@@ -280,8 +250,12 @@ $(document).ready(function () {
 
 map.on('popupopen', e => {
   const $popup = $(e.popup.getElement());
+  const marker = e.popup._source;
   $popup.find('.contact-btn').on('click', () => {
     $popup.find('.contact-info').toggleClass('hidden');
+  });
+  $popup.find('.add-shortlist').on('click', () => {
+    addToShortlist(marker.rowData);
   });
 });
 
